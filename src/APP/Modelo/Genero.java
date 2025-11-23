@@ -1,11 +1,24 @@
 package APP.Modelo;
 public enum Genero {
-    ACCION,
+    ACTION,
+    ADVENTURE,
+    ANIMATION,
+    COMEDY,
+    CRIME,
+    DOCUMENTARY,
     DRAMA,
-    COMEDIA,
-    TERROR,
-    CIENCIA_FICCION,
-    ROMANCE;
+    FAMILY,
+    FANTASY,
+    HISTORY,
+    HORROR,
+    MUSIC,
+    MYSTERY,
+    ROMANCE,
+    SCIENCE_FICTION,
+    TV_MOVIE,
+    THRILLER,
+    WAR,
+    WESTERN;
 
     public static boolean esGeneroValido(String valor) {
         for (Genero g : Genero.values()) {

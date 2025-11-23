@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <classpath>
-	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
+	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/JavaSE-17"/>
 	<classpathentry kind="src" path="src"/>
-	<classpathentry kind="lib" path="lib/sqlite-jdbc-3.50.3.0.jar"/>
+	<classpathentry kind="lib" path="/home/fzsantiago03/Descargas/Entregable2 (1)-20251027T180356Z-1-001/Entregable2.Grupo2/lib/sqlite-jdbc-3.50.3.0.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

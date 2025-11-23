@@ -97,16 +97,16 @@ public class PeliculaDAOjdbc implements PeliculaDAO{
     @Override
     public Pelicula encontrarPelicula(String titulo) {
         Pelicula pelicula= null;
-        String sql = "SELECT * FROM PELICULA WHERE TITULO= ? ";
-        System.out.println(sql);
+        String sql = "SELECT * FROM PELICULA WHERE LOWER(TITULO)= LOWER(?) ";
         try {
             Connection con = MiConexion.getCon();
             PreparedStatement st = con.prepareStatement(sql);
             st.setString(1, titulo);
             ResultSet rs= st.executeQuery();
             if (rs.next()==true) {
-                Genero genero = Genero.desdeTexto(rs.getString("GENERO"));
-                pelicula = new Pelicula(rs.getInt("ID"),genero,rs.getString("TITULO"),rs.getString("RESUMEN"),rs.getString("DIRECTOR"),rs.getInt("DURACION"));
+                String genPrincipal= rs.getString("GENERO").split(",")[0].trim();//toma el primer genero como genero principal
+                Genero genero = Genero.desdeTexto(genPrincipal);
+                pelicula = new Pelicula(rs.getInt("ID"),rs.getString("TITULO"),rs.getString("FECHA_ESTRENO"),genPrincipal,rs.getString("DIRECTOR"),rs.getString("RESUMEN"));
             }
             rs.close();
             st.close();

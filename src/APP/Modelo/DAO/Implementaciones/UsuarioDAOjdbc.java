@@ -8,20 +8,18 @@ import APP.Modelo.*;
 public class UsuarioDAOjdbc implements UsuarioDAO {
     public List<UsuarioCliente> getUsuarios(){
         List<UsuarioCliente> usuarios = new ArrayList<>();
-        String sql = """
-            SELECT 
-                u.ID AS ID_USUARIO, 
-                u.NOMBRE_USUARIO, 
-                u.EMAIL, 
-                u.CONTRASENA,
-                u.IDIOMA,
-                d.ID AS ID_DATOS,
-                d.NOMBRES, 
-                d.APELLIDO, 
-                d.DNI
-            FROM USUARIO u
-            JOIN DATOS_PERSONALES d ON u.ID_DATOS_PERSONALES = d.ID
-        """;
+        String sql = "SELECT \n"
+                + "u.ID AS ID_USUARIO, \n"
+                + "u.NOMBRE_USUARIO, \n"
+                + "u.EMAIL, \n"
+                + "u.CONTRASENA,\n"
+                + "u.IDIOMA,\n"
+                + "d.ID AS ID_DATOS,\n"
+                + "d.NOMBRES, \n"
+                + "d.APELLIDO, \n"
+                + "d.DNI\n"
+                + "FROM USUARIO u\n"
+                + "JOIN DATOS_PERSONALES d ON u.ID_DATOS_PERSONALES = d.ID";
         
         try(Connection con = MiConexion.getCon();
             Statement st = con.createStatement();
@@ -122,6 +120,33 @@ public class UsuarioDAOjdbc implements UsuarioDAO {
         UsuarioCliente usuario = null;
         DatosPersonalesDAOjdbc daoDP = new DatosPersonalesDAOjdbc();
         String sql = "SELECT * FROM USUARIO WHERE NOMBRE_USUARIO = ?";
+        try 
+        (
+        PreparedStatement ps = MiConexion.getCon().prepareStatement(sql); 
+        ){
+            ps.setString(1, identificacion);
+            ResultSet rs = ps.executeQuery();
+            if (rs.next()==true) {
+                DatosPersonales dp = daoDP.encontrarId(rs.getInt("ID_DATOS_PERSONALES"));        
+                usuario = new UsuarioCliente( rs.getString("EMAIL"),
+                rs.getString("CONTRASENA"),
+                dp,
+                rs.getInt("ID"),
+                rs.getString("IDIOMA"),
+                rs.getString("NOMBRE_USUARIO"));
+            }
+            rs.close();
+
+        } catch (java.sql.SQLException e) {
+            System.out.println("Error de SQL: "+e.getMessage());
+        }
+        return usuario;
+    }
+
+    public UsuarioCliente encontrarEmail(String identificacion) {
+        UsuarioCliente usuario = null;
+        DatosPersonalesDAOjdbc daoDP = new DatosPersonalesDAOjdbc();
+        String sql = "SELECT * FROM USUARIO WHERE EMAIL = ?";
         try 
         (
         PreparedStatement ps = MiConexion.getCon().prepareStatement(sql); 

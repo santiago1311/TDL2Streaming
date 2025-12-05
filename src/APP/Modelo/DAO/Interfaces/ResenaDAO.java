@@ -2,7 +2,7 @@ package APP.Modelo.DAO.Interfaces;
 import java.util.List;
 import APP.Modelo.Resena;
 public interface ResenaDAO{
-    void agregarResena(Resena resena);
+    void agregarResena(Resena resena) throws Exception;
     Resena obtenerResenaId(int id);
     Resena obtenerResena(String criterio);
     List<Resena> obtenerTodasResenas();

@@ -3,6 +3,7 @@ import java.sql.Connection;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.sql.DriverManager;
+import APP.Modelo.DAO.Implementaciones.MiConexion;
 
 public class BaseDeDatos {
 
@@ -41,6 +42,7 @@ public class BaseDeDatos {
                 "IDIOMA TEXT,"+
                 "CONTRASENA TEXT NOT NULL," +
                 "ID_DATOS_PERSONALES INTEGER NOT NULL," +
+                "INICIOS_SESION INTEGER DEFAULT 0 NOT NULL,"+
                 "CONSTRAINT USUARIO_DATOS_PERSONALES_FK FOREIGN KEY (ID_DATOS_PERSONALES) REFERENCES DATOS_PERSONALES(ID)"+
                 ");";
         stmt.executeUpdate(sql);
@@ -61,12 +63,10 @@ public class BaseDeDatos {
         stmt.close();
     }
 
-        public static void main (String args[]){
+        public static void iniciarBase (){
                 System.out.println("Iniciando base de datos");
-                Connection c = null;
-                try {
-                        c = DriverManager.getConnection("jdbc:sqlite:appstreaming.db");
-                        creacionDeTablasEnBD(c);
+                try (Connection con = MiConexion.getCon()){
+                        creacionDeTablasEnBD(con);
                 } catch (SQLException e){
                         System.out.println("Que base de datos?" + e.getMessage());
                 }

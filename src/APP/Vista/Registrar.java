@@ -13,7 +13,8 @@ public class Registrar extends JFrame {
     private ImageIcon imagenOriginal;
     private JLabel etiquetaImagen;
     private JLabel errorEmail, errorContrasena, errorDni, etiquetaError;
-
+    private JButton cerrar;
+    
     public JButton getBotonRegistrar() {
         return botonRegistrar;
     }

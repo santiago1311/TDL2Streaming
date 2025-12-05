@@ -2,6 +2,8 @@ package APP.Modelo.DAO.Implementaciones;
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
+
+import APP.Excepciones.EncontrarUsuarioException;
 import APP.Modelo.*;
 import APP.Modelo.DAO.Interfaces.ResenaDAO;
 
@@ -25,7 +27,7 @@ public class ResenaDAOjdbc implements ResenaDAO{
     }
 
     @Override
-    public void agregarResena(Resena resena) {
+    public void agregarResena(Resena resena) throws Exception {
         String sql = "  INSERT INTO RESENA (CALIFICACION,OPINION,APROBADO,FECHA_HORA,ID_USUARIO,ID_PELICULA) VALUES(?,?,?,?,?,?) ";
         UsuarioDAOjdbc usuariodao = new UsuarioDAOjdbc();
         PeliculaDAOjdbc peliculaDAO = new PeliculaDAOjdbc();
@@ -37,10 +39,18 @@ public class ResenaDAOjdbc implements ResenaDAO{
             p_sent.setInt(3, resena.getAprobado());
             p_sent.setString(4, resena.getFechaHora());
             UsuarioCliente us = resena.getUsuario();
-            p_sent.setInt(5, usuariodao.encontrar(us.getNombreUsuario()).getId());
+            try{
+                p_sent.setInt(5, usuariodao.encontrar(us.getNombreUsuario()).getId());
+            }catch (Exception e){
+                throw new EncontrarUsuarioException("Error al encontrar el usuario para agregar la reseña", e);
+            }
             Pelicula pelicula = resena.getPelicula();
+            try {
+                peliculaDAO.encontrarPelicula(pelicula.getTitulo());
+            } catch (Exception e){
+                throw new Exception ("Error al encontrar la pelicula para agregar la reseña ", e);
+            }
             p_sent.setInt(6, peliculaDAO.encontrarPelicula(pelicula.getTitulo()).getId());
-            
             p_sent.executeUpdate();
         } catch (SQLException e){
             System.out.println("Error al cargar los datos: "+ e.getMessage());
@@ -92,6 +102,41 @@ public class ResenaDAOjdbc implements ResenaDAO{
     
     }
 
+    public List<Resena> obtenerResenasPorUsuario(UsuarioCliente usuario) {
+        String sql = "SELECT * FROM RESENA WHERE ID_USUARIO = ?";
+        List<Resena> resenasUsuario = new ArrayList<>();
+        PeliculaDAOjdbc peliculaDAO = new PeliculaDAOjdbc();
+        Pelicula pelicula;
+        try (Connection con = MiConexion.getCon();
+            PreparedStatement p_sent = con.prepareStatement(sql)) {
+            p_sent.setInt(1, usuario.getId());
+            try (ResultSet rs = p_sent.executeQuery()) {
+                while (rs.next()) {
+                    try {
+                        pelicula = peliculaDAO.encontrarPelicula(rs.getInt("ID_PELICULA"));
+                    } catch (Exception e) {
+                        System.out.println("Error al encontrar la pelicula con id: " + rs.getInt("ID_PELICULA") + ". " + e.getMessage());
+                        continue; //salta a la siguiente reseña si hay un error
+                    }
+                    Resena resena = new Resena(
+                        rs.getInt("CALIFICACION"),
+                        rs.getString("OPINION"),
+                        rs.getInt("APROBADO"),
+                        rs.getString("FECHA_HORA"),
+                        rs.getInt("ID"),
+                        usuario,
+                        pelicula
+                    );
+                    resenasUsuario.add(resena);
+                }
+            }
+        } catch (SQLException e) {
+            System.out.println("Error al obtener reseñas por usuario: " + e.getMessage());
+        }
+        
+        return resenasUsuario;
+    }
+
     @Override
     public List<Resena> obtenerTodasResenas() {
         List<Resena> resenas = new ArrayList<>();
@@ -106,11 +151,18 @@ public class ResenaDAOjdbc implements ResenaDAO{
                         "    r.ID_USUARIO,\n" +
                         "    r.ID_PELICULA\n" +
                         "FROM RESENA r\n";
+        Pelicula pelicula;
         try(Connection con = MiConexion.getCon();
         Statement st = con.createStatement();
         ResultSet rs = st.executeQuery(sql)) {
             while (rs.next()){
-                Resena r =new Resena(rs.getInt(2),rs.getString(3), rs.getInt(4), rs.getString(5), rs.getInt(1), usuarioDAO.encontrarID(rs.getInt(6)), peliculaDAO.encontrarPelicula(rs.getInt(7)));
+                try {
+                    pelicula =peliculaDAO.encontrarPelicula(rs.getInt("ID_PELICULA"));
+                }catch (Exception e){
+                    System.out.println("Error al encontrar la pelicula con id: " + rs.getInt("ID_PELICULA") + ". " + e.getMessage());
+                    continue; //salta a la siguiente reseña si hay un error
+                }
+                Resena r =new Resena(rs.getInt(2),rs.getString(3), rs.getInt(4), rs.getString(5), rs.getInt(1), usuarioDAO.encontrarID(rs.getInt(6)), pelicula);
                 resenas.add(r);
             }
         } catch (SQLException e){
@@ -131,8 +183,20 @@ public class ResenaDAOjdbc implements ResenaDAO{
             ResultSet rs = st.executeQuery(sql)){
 
             while (rs.next()){
-                UsuarioCliente usuario = usuarioDAO.encontrarID(rs.getInt("ID_USUARIO"));
-                Pelicula pelicula =peliculaDAO.encontrarPelicula(rs.getInt("ID_PELICULA"));
+                UsuarioCliente usuario;
+                Pelicula pelicula;
+                try {
+                    pelicula =peliculaDAO.encontrarPelicula(rs.getInt("ID_PELICULA"));
+                }catch (Exception e){
+                    System.out.println("Error al encontrar la pelicula con id: " + rs.getInt("ID_PELICULA") + ". " + e.getMessage());
+                    continue; //salta a la siguiente reseña si hay un error
+                }
+                try {
+                    usuario =usuarioDAO.encontrarID(rs.getInt("ID_USUARIO"));
+                } catch (Exception e){
+                    System.out.println("Error al encontrar el usuario con id: " + rs.getInt("ID_USUARIO") + ". " + e.getMessage());
+                    continue; //salta a la siguiente reseña si hay un error
+                }
                 Resena r = new Resena (rs.getInt("CALIFICACION"),rs.getString("OPINION"), rs.getInt("APROBADO"), rs.getString("FECHA_HORA"), rs.getInt("ID"), usuario, pelicula);
                 noAprobadas.add(r);
             }   

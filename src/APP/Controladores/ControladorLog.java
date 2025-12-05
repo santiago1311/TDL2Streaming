@@ -1,11 +1,8 @@
 package APP.Controladores;
-import APP.Vista.VistaLog;
+import APP.Vista.*;
 import APP.Modelo.Validaciones.ValidacionUsuario;
-import APP.Vista.Registrar;
 import APP.Modelo.DAO.Implementaciones.*;
 import APP.Modelo.*;
-
-
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
@@ -16,7 +13,6 @@ public class ControladorLog implements ActionListener {
     public ControladorLog(VistaLog vistaLog) {
         this.vistaLog = vistaLog;
 
-       
         this.vistaLog.getBotonLog().addActionListener(this);
         this.vistaLog.getBotonRegistrarte().addActionListener(this);
         this.vistaLog.getBotonCerrar().addActionListener(this);
@@ -51,10 +47,17 @@ public class ControladorLog implements ActionListener {
                 return;
             }
             vistaLog.mostrarMensaje("¡Inicio de sesión exitoso!");
-            // aca se conecta con la ventana principal de la aplicacion
-            //new LoadingVista().setVisible(true);
-            //vistaLog.dispose(); // Cierra la ventana de login
-            //return;
+            // se pone en true el campo de que ya se inicio sesion 
+
+            
+            // se abre la ventanita de carga
+            LoadingVista loading = new LoadingVista(vistaLog);
+            cargarPeliculasEnSegundoPlano(usuario.getNombreUsuario(), loading);
+            loading.setVisible(true);
+            // ejecuto la carga de las peliculas en 2do plano 
+            
+            vistaLog.dispose();
+
         }
 
         if (e.getSource() == vistaLog.getBotonRegistrarte()) {
@@ -67,4 +70,30 @@ public class ControladorLog implements ActionListener {
             System.exit(0);
         }
     }
+
+    private void cargarPeliculasEnSegundoPlano(String nombreUsuario, LoadingVista loading) {
+
+            new Thread(() -> {
+
+                try {
+                    // Controlador de listado (requiere la vista luego)
+                    ListadoPeliculasVista vistaListado = new ListadoPeliculasVista(nombreUsuario);
+                    ControladorListadoPeliculas controladorListado = new ControladorListadoPeliculas(vistaListado);
+
+                    // Ejecutar la carga
+                    controladorListado.listado(4);
+
+                    // Mostrar vista de películas cuando termina
+                    javax.swing.SwingUtilities.invokeLater(() -> {
+                        loading.dispose();
+                        vistaListado.setVisible(true);
+                    });
+
+                } catch (Exception ex) {
+                    ex.printStackTrace();
+                }
+
+            }).start();
+        }
+
 }

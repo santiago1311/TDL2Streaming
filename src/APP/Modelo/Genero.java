@@ -29,8 +29,27 @@ public enum Genero {
         return false;
     }
     public static Genero desdeTexto(String valor) {
-        return Genero.valueOf(valor.toUpperCase());
+        if (valor == null) return null;
+        String t = valor.trim().toUpperCase().replace(" ", "_");
+
+        switch (t) {
+            case "SCIENCE_FICTION":
+            case "SCI-FI":
+            case "SCIENCEFICTION":
+                return SCIENCE_FICTION;
+            case "TV_MOVIE":
+            case "TV":
+            case "TELEVISION_MOVIE":
+                return TV_MOVIE;
+            default:
+                try {
+                    return Genero.valueOf(t);
+                } catch (IllegalArgumentException e) {
+                    return null; 
+                }
+        }
     }
+
     
 }
 

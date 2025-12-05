@@ -1,8 +1,8 @@
 {
     "java.configuration.runtimes": [
         {
-            "name": "JavaSE-17",
-            "path": "/usr/lib/jvm/java-17-openjdk-amd64",
+            "name": "JavaSE-21",
+            "path": "/usr/lib/jvm/java-21-openjdk-amd64",
             "default": true
         }
     ],
@@ -10,6 +10,7 @@
     "java.configuration.updateBuildConfiguration": "interactive",
     "java.project.sourcePaths": ["src"],
     "java.project.outputPath": "bin",
-    "java.configuration.projectJdk": "JavaSE-17",
-    "java.jdt.ls.java.home": "/usr/lib/jvm/java-17-openjdk-amd64"
+    "java.configuration.projectJdk": "JavaSE-21",
+    "java.jdt.ls.java.home": "/usr/lib/jvm/java-21-openjdk-amd64"
+
 }

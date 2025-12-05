@@ -1,5 +1,5 @@
 package APP.Vista;
-import java.awt.event.ActionListener;
+
 import javax.swing.*;
 import java.awt.*;
 import APP.Controladores.ControladorLog;
@@ -32,36 +32,23 @@ public class VistaLog extends JFrame {
 
         // Contraseña
         addRow(panelFormulario, gbc, 1, "Contraseña:", campoContrasena);
-
-        //  Botón Login
         gbc.gridx = 1;
         gbc.gridy = 2;
         gbc.anchor = GridBagConstraints.CENTER;
         panelFormulario.add(botonLog, gbc);
-        
-        // Mensaje de error 
         gbc.gridy = 4;
         gbc.gridx = 1;
         etiquetaError.setForeground(Color.RED);
         panelFormulario.add(etiquetaError, gbc);
-
-        // Registro
         gbc.gridy = 3;
         panelFormulario.add(botonRegistrarte, gbc);
-
-        
         JPanel panelImagen = new JPanel(new BorderLayout());
-
         JLabel titulo = new JLabel("TDL2 Streaming", JLabel.CENTER);
         titulo.setFont(new Font("Arial", Font.BOLD, 30));
-        java.net.URL urlImagen = Registrar.class.getResource("../Imagenes/Logo.jpg");
-
-
+        java.net.URL urlImagen = ClassLoader.getSystemClassLoader().getResource("APP/Imagenes/Logo.jpg");
         imagenOriginal = new ImageIcon(urlImagen);
-        etiquetaImagen = new JLabel();
+        etiquetaImagen = new JLabel(imagenOriginal);
         etiquetaImagen.setHorizontalAlignment(JLabel.CENTER);
-
-       
         panelImagen.addComponentListener(new java.awt.event.ComponentAdapter() {
             @Override
             public void componentResized(java.awt.event.ComponentEvent e) {
@@ -94,7 +81,7 @@ public class VistaLog extends JFrame {
         setContentPane(panelPrincipal);
         setSize(800, 500);
         setLocationRelativeTo(null);
-        setResizable(true);
+        setResizable(false);
         setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
         setVisible(true);
 
@@ -148,10 +135,4 @@ public class VistaLog extends JFrame {
         etiquetaError.setText(mensaje);
     }
 
-    
-
-    public static void main(String[] args) {
-        
-        new VistaLog();
-    }
 }

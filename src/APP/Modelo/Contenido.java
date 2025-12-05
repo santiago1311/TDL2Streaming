@@ -6,6 +6,14 @@ public class Contenido implements Comparable<Contenido>{
     private String sinopsis;
     private Genero genero;
     private Integer iD;
+    private float rating_promedio;
+    
+    public float getRating_promedio() {
+        return rating_promedio;
+    }
+    public void setRating_promedio(float rating_promedio) {
+        this.rating_promedio = rating_promedio;
+    }
     
     public String getTitulo() {
         return titulo;

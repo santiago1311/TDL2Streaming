@@ -3,25 +3,24 @@ import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
 import APP.Modelo.DAO.Interfaces.UsuarioDAO;
+import APP.Excepciones.EncontrarUsuarioException;
 import APP.Modelo.*;
 
 public class UsuarioDAOjdbc implements UsuarioDAO {
     public List<UsuarioCliente> getUsuarios(){
         List<UsuarioCliente> usuarios = new ArrayList<>();
-        String sql = """
-            SELECT 
-                u.ID AS ID_USUARIO, 
-                u.NOMBRE_USUARIO, 
-                u.EMAIL, 
-                u.CONTRASENA,
-                u.IDIOMA,
-                d.ID AS ID_DATOS,
-                d.NOMBRES, 
-                d.APELLIDO, 
-                d.DNI
-            FROM USUARIO u
-            JOIN DATOS_PERSONALES d ON u.ID_DATOS_PERSONALES = d.ID
-        """;
+        String sql = "SELECT \n"
+                + "u.ID AS ID_USUARIO, \n"
+                + "u.NOMBRE_USUARIO, \n"
+                + "u.EMAIL, \n"
+                + "u.CONTRASENA,\n"
+                + "u.IDIOMA,\n"
+                + "d.ID AS ID_DATOS,\n"
+                + "d.NOMBRES, \n"
+                + "d.APELLIDO, \n"
+                + "d.DNI\n"
+                + "FROM USUARIO u\n"
+                + "JOIN DATOS_PERSONALES d ON u.ID_DATOS_PERSONALES = d.ID";
         
         try(Connection con = MiConexion.getCon();
             Statement st = con.createStatement();
@@ -118,10 +117,36 @@ public class UsuarioDAOjdbc implements UsuarioDAO {
         return usuario;
  
     }
-    public UsuarioCliente encontrar(String identificacion) {
+    public UsuarioCliente encontrar(String identificacion) throws EncontrarUsuarioException {
         UsuarioCliente usuario = null;
         DatosPersonalesDAOjdbc daoDP = new DatosPersonalesDAOjdbc();
         String sql = "SELECT * FROM USUARIO WHERE NOMBRE_USUARIO = ?";
+        try 
+        (
+        PreparedStatement ps = MiConexion.getCon().prepareStatement(sql); 
+        ){
+            ps.setString(1, identificacion);
+            ResultSet rs = ps.executeQuery();
+            if (rs.next()==true) {
+                DatosPersonales dp = daoDP.encontrarId(rs.getInt("ID_DATOS_PERSONALES"));        
+                usuario = new UsuarioCliente( rs.getString("EMAIL"),
+                rs.getString("CONTRASENA"),
+                dp,
+                rs.getInt("ID"),
+                rs.getString("IDIOMA"),
+                rs.getString("NOMBRE_USUARIO"), rs.getInt("INICIOS_SESION"));
+            }
+            rs.close();
+        } catch (java.sql.SQLException e) {
+            throw new EncontrarUsuarioException("No se ha encontrado el usuario en la aplicacion", e);
+        }
+        return usuario;
+    }
+
+    public UsuarioCliente encontrarEmail(String identificacion) {
+        UsuarioCliente usuario = null;
+        DatosPersonalesDAOjdbc daoDP = new DatosPersonalesDAOjdbc();
+        String sql = "SELECT * FROM USUARIO WHERE EMAIL = ?";
         try 
         (
         PreparedStatement ps = MiConexion.getCon().prepareStatement(sql); 
@@ -144,5 +169,33 @@ public class UsuarioDAOjdbc implements UsuarioDAO {
         }
         return usuario;
     }
+
+    public Boolean inicioSesionOno(UsuarioCliente usuario){
+        Boolean auxiliar = false;
+        if (usuario != null){
+            if (usuario.getInicioDeSesionOno() > 1)
+                auxiliar =true;
+            else auxiliar =false;
+        }
+        incrementarIniciosSesion(usuario.getId());
+        return auxiliar;
+    }
+
+    public static void incrementarIniciosSesion(int idUsuario) {
+    String sql = "UPDATE USUARIO SET INICIOS_SESION = INICIOS_SESION + 1 WHERE ID = ?";
+    try (Connection con = MiConexion.getCon();
+         PreparedStatement pstmt = con.prepareStatement(sql)) {
+        pstmt.setInt(1, idUsuario);
+        int filas = pstmt.executeUpdate(); 
+        if (filas > 0) {
+            System.out.println("Se incrementó INICIOS_SESION para el usuario con ID " + idUsuario);
+        } else {
+            System.out.println("No se encontró el usuario con ID " + idUsuario);
+        }
+    } catch (SQLException e) {
+        System.out.println("Error al incrementar inicios de sesión: " + e.getMessage());
+    }
+}
+
 }
 

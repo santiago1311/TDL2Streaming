@@ -61,7 +61,6 @@ public class DatosPersonalesDAOjdbc implements DatosPersonalesDAO {
         return dp;
     }
 
-    // MÉTODO CORREGIDO
     public DatosPersonales encontrarPorDni(Integer DNI){
         DatosPersonales dp = null;
         String sql = "SELECT * FROM DATOS_PERSONALES WHERE DNI = ?";
@@ -100,7 +99,6 @@ public class DatosPersonalesDAOjdbc implements DatosPersonalesDAO {
         }
     }
 
-    // ESTE MÉTODO YA ESTABA CORRECTO
     public List<DatosPersonales> cargar(){
         List<DatosPersonales> listDatos = new ArrayList<>();
     
@@ -112,7 +110,6 @@ public class DatosPersonalesDAOjdbc implements DatosPersonalesDAO {
                         "FROM DATOS_PERSONALES d\n" + 
                         "";
         
-        // Fíjate como aquí el ResultSet SÍ estaba en el try-with-resources
         try(Connection con = MiConexion.getCon();
             Statement st = con.createStatement();
             ResultSet rs = st.executeQuery(sql)) {

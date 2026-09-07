@@ -7,6 +7,7 @@ Permite registrarse, ingresar datos personales, iniciar sesión, listar usuarios
 
 ## Historial de Versiones
 `1.0` 28/10/2025
+`1.1` 5/12/2025
 
 ## Requisitos
 - Java 17 o superior instalado.
